@@ -208,7 +208,7 @@
 
 2. Создаем отдельную map(object) переменную для блока metadata в [vms_platform.tf](/src/vms_platform.tf)
 
-3. Проверяем terraform plan, изменнений нет
+3. Проверяем terraform plan, изменений нет
 
 ![screen](screenshots/11.png)
 
