@@ -12,19 +12,26 @@ resource "yandex_vpc_subnet" "develop" {
 
 resource "yandex_vpc_subnet" "db" {
   name           = var.db_vpc_name
-  zone           = var.db_zone
+  zone           = var.vm_db_zone
   network_id     = yandex_vpc_network.develop.id
   v4_cidr_blocks = var.db_cidr
 }
 
 
 
-data "yandex_compute_image" "ubuntu" {
+data "yandex_compute_image" "vm_web_ubuntu" {
   family = var.vm_web_image
 }
+
+data "yandex_compute_image" "vm_db_ubuntu" {
+  family = var.vm_db_image
+}
+
 resource "yandex_compute_instance" "platform" {
   name        = local.vm_web_name
-  platform_id = "standard-v4a"
+  platform_id = var.vm_web_platform
+  zone = var.vm_web-zone
+
   resources {
     cores         = var.vms_resources["web"].cores
     memory        = var.vms_resources["web"].memory
@@ -32,15 +39,15 @@ resource "yandex_compute_instance" "platform" {
   }
   boot_disk {
     initialize_params {
-      image_id = data.yandex_compute_image.ubuntu.image_id
+      image_id = data.yandex_compute_image.vm_web_ubuntu.image_id
     }
   }
   scheduling_policy {
-    preemptible = true
+    preemptible = var.vm_web_preemptible
   }
   network_interface {
     subnet_id = yandex_vpc_subnet.develop.id
-    nat       = true
+    nat       = var.vm_web_nat
   }
 
   metadata = merge (var.metadata, {
@@ -52,8 +59,8 @@ resource "yandex_compute_instance" "platform" {
 
 resource "yandex_compute_instance" "db" {
   name        = local.vm_db_name
-  platform_id = "standard-v4a"
-  zone        = "ru-central1-e"
+  platform_id = var.vm_db_platform
+  zone        = var.vm_db_zone
   resources {
     cores         = var.vms_resources["db"].cores
     memory        = var.vms_resources["db"].memory
@@ -61,15 +68,15 @@ resource "yandex_compute_instance" "db" {
   }
   boot_disk {
     initialize_params {
-      image_id = data.yandex_compute_image.ubuntu.image_id
+      image_id = data.yandex_compute_image.vm_db_ubuntu.image_id
     }
   }
   scheduling_policy {
-    preemptible = true
+    preemptible = var.vm_db_preemptible
   }
   network_interface {
     subnet_id = yandex_vpc_subnet.db.id
-    nat       = true
+    nat       = var.vm_db_nat
   }
 
   metadata = merge (var.metadata, {

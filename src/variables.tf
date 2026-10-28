@@ -19,10 +19,6 @@ variable "default_zone" {
   description = "https://cloud.yandex.ru/docs/overview/concepts/geo-scope"
 }
 
-variable "db_zone" {
-  type    = string
-  default = "ru-central1-e"
-}
 
 variable "default_cidr" {
   type        = list(string)
@@ -49,11 +45,6 @@ variable "db_vpc_name" {
 }
 
 
-variable "vm_web_image" {
-  type        = string
-  default     = "ubuntu-2004-lts"
-  description = "web vm image"
-}
 
 
 
